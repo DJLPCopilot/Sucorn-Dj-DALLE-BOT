@@ -190,7 +190,7 @@ async def nuclear_cat_new(interaction: discord.Interaction, folder_name: str, mo
         await silly_message(interaction, title="Channel is not an integer.")
         return
 
-    wdir = f'{DIRECTORY}/images/DJLaunchpad-1/{mode if mode != "unlabelled" else ""}'
+    wdir = f'{DIRECTORY}/images/DJLaunchpad-2/{mode if mode != "unlabelled" else ""}'
     if not os.path.exists(wdir):
         await silly_message(interaction, title=f"{wdir.replace(DIRECTORY, '')} does not exist")
         return
