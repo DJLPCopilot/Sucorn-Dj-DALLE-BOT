@@ -2,9 +2,9 @@ import os
 import numpy as np
 import tensorflow as tf
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
 
-dataset_path = "../../images/catgirls-21"
+dataset_path = "../../images/DJ And Skylar-2"
 
 img_width, img_height = 1024, 1024
 batch_size = 32
