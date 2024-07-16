@@ -85,11 +85,9 @@ if __name__ == "__main__":
                             help='Runs the program with a testing cookie file named test_cookies.json (default is False)')
         parser.add_argument('-l', '--log', action='store_true',
                             help='Logs all errors to /logs')  # TODO: implement
-
-        args = parser.parse_args()
+        args = 
     except SystemExit as e:
-
-        print("Error: Missing or invalid arguments.")
+        print("Error: Missing or parser.parse_args()invalid arguments.")
         parser.print_help()
         sys.exit(e.code)
 
