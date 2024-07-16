@@ -64,13 +64,6 @@ def terminate():
     print("Terminated")
 
 if __name__ == "__main__":
-    import sys
-    import argparse
-    import os
-    import json
-    import platform
-    import keyboard
-
     parser = argparse.ArgumentParser(description='kitty farm')
     parser.add_argument('folder', type=str, help='folder name, ./images/DJLaunchpad-2')
     parser.add_argument('-d', '--delay', type=float, default=0, help='Delay time in seconds (default is 0)')

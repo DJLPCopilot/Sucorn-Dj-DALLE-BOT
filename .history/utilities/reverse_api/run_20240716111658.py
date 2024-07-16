@@ -64,28 +64,23 @@ def terminate():
     print("Terminated")
 
 if __name__ == "__main__":
-    import sys
-    import argparse
-    import os
-    import json
-    import platform
-    import keyboard
-
     parser = argparse.ArgumentParser(description='kitty farm')
     parser.add_argument('folder', type=str, help='folder name, ./images/DJLaunchpad-2')
     parser.add_argument('-d', '--delay', type=float, default=0, help='Delay time in seconds (default is 0)')
     parser.add_argument('-m', '--max', type=int, default=80, help='Maximum number of failed redirects before killing process (default is 80)')
     parser.add_argument('-t', '--test', action='store_true', help='Runs the program with a testing cookie file named test_cookies.json (default is False)')
     parser.add_argument('-l', '--log', action='store_true', help='Logs all errors to /logs') # TODO: implement
+    args = parser.parse_args()
 
-    try:
-        args = parser.parse_args()
-    except SystemExit:
-        print("Error: Invalid arguments provided.")
-        sys.exit(1)
     print("Parsed arguments:", args)
 
-    out_path = f"{DIRECTORY}/../../images/{args.folder}"
+    out_path = f"{DIRECTORY}/../../images/{args.folderException has occurred: SystemExit
+2
+  File "/Users/jacobbender/Sucorn-Dj-DALLE-BOT/utilities/reverse_api/run.py", line 73, in <module>
+    args = parser.parse_args()
+           ^^^^^^^^^^^^^^^^^^^
+SystemExit: 2
+}"
     if not os.path.exists(out_path):
         os.makedirs(out_path)  # Use makedirs to create any necessary intermediate directories
         prompt = read_prompt()
