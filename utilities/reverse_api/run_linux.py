@@ -66,19 +66,18 @@ def terminate():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='kitty farm')
-    parser.add_argument('folder', type=str, help='folder name, e.g., ./images/your_name_here')
-    parser.add_argument('-d', '--delay', type=float, default=0, help='Delay time in seconds (default is 0)')
-    parser.add_argument('-m', '--max', type=int, default=80, help='Maximum number of failed redirects before killing process (default is 80)')
-    parser.add_argument('-t', '--test', action='store_true', help='Runs the program with a testing cookie file named test_cookies.json (default is False)')
-    parser.add_argument('-l', '--log', action='store_true', help='Logs all errors to /logs')
-    parser.add_argument('-v', '--venv', action='store_true', help='Use venv located in the top-level directory')
-
-    try:
-        args = parser.parse_args()
-    except SystemExit as e:
-        print("Error: Invalid command-line arguments. Please check the provided arguments.")
-        print("Usage: python script.py folder_name [-d DELAY] [-m MAX] [-t] [-l] [-v]")
-        sys.exit(1)
+    parser.add_argument('folder', type=str, help='folder name, ./images/your_name_here')
+    parser.add_argument('-d', '--delay', type=float, default=0,
+        help='Delay time in seconds (default is 0)')
+    parser.add_argument('-m', '--max', type=int, default=100,
+        help='Maximum number of failed redirects before killing process (default is 100)')
+    parser.add_argument('-t', '--test', action='store_true',
+        help='Runs the program with a testing cookie file named test_cookies.json (default is False)')
+    parser.add_argument('-l', '--log', action='store_true',
+        help='Logs all errors to /logs')
+    parser.add_argument('-v', '--venv', action='store_true',
+        help='Use venv located in top level directory')
+    args = parser.parse_args()
 
     sudo_user = os.getenv("SUDO_USER")
     if not sudo_user:

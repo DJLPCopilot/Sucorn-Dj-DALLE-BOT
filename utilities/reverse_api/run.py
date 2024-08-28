@@ -22,15 +22,18 @@ logging.basicConfig(filename='run.log', level=logging.INFO, format='%(asctime)s:
 DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 def read_prompt():
-    """Reads prompt"""
-    PROMPT_FILE = f"{DIRECTORY}/prompt.txt"
-    try:
+    """Author: Andrew Higgins
+    https://github.com/speckly
+
+    sucorn project data preparation phase
+    Reads prompt"""
+    PROMPT_FILE = f"{DIRECTORY}/new_prompt.txt"
+    if os.path.exists(PROMPT_FILE):
         with open(PROMPT_FILE, encoding="utf-8") as f:
             prompt = ''.join(f.readlines()).replace('\n', '')
-    except FileNotFoundError:
-        logging.warning("prompt.txt does not exist, prompting user for input.")
-        prompt = input("prompt.txt does not exist, enter your prompt here to be saved to prompt.txt -> ")
-        with open(PROMPT_FILE, "w", encoding="utf-8") as f:
+    else:
+        prompt = input("new_prompt.txt does not exist, enter your prompt here to be saved to prompt.txt -> ")
+        with open(PROMPT_FILE, encoding="utf-8") as f:
             f.write(prompt)
     return prompt
 
@@ -82,29 +85,17 @@ def terminate():
     print("Terminated")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:  # Expect at least one argument for 'folder'
-        logging.error("Insufficient arguments provided.")
-        print("Usage: python run.py <folder> [options]")
-        print("Try 'python run.py --help' for more information.")
-        sys.exit(1)
-
-    try:
-        parser = argparse.ArgumentParser(description='kitty farm')
-        parser.add_argument('folder', type=str, help='folder name, ./images/your_name_here')
-        parser.add_argument('-d', '--delay', type=float, default=0,
-                            help='Delay time in seconds (default is 0)')
-        parser.add_argument('-m', '--max', type=int, default=80,
-                            help='Maximum number of failed redirects before killing process (default is 80)')
-        parser.add_argument('-t', '--test', action='store_true',
-                            help='Runs the program with a testing cookie file named test_cookies.json (default is False)')
-        parser.add_argument('-l', '--log', action='store_true',
-                            help='Logs all errors to /logs')  # Implemented logging
-
-        args = parser.parse_args()
-    except SystemExit as e:
-        logging.error("Error: Missing or invalid arguments.")
-        print("Error: Missing or invalid arguments.")
-        sys.exit(e.code)
+    parser = argparse.ArgumentParser(description='kitty farm')
+    parser.add_argument('folder', type=str, help='folder name, ./images/your_name_here')
+    parser.add_argument('-d', '--delay', type=float, default=0,
+        help='Delay time in seconds (default is 0)')
+    parser.add_argument('-m', '--max', type=int, default=100,
+        help='Maximum number of failed redirects before killing process (default is 100)')
+    parser.add_argument('-t', '--test', action='store_true',
+        help='Runs the program with a testing cookie file named test_cookies.json (default is False)')
+    parser.add_argument('-l', '--log', action='store_true',
+        help='Logs all errors to /logs') # TODO: implement
+    args = parser.parse_args()
 
     out_path = f"{DIRECTORY}/../../images/{args.folder}"
     if not os.path.exists(out_path):

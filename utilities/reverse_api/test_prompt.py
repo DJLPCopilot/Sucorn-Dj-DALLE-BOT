@@ -14,7 +14,7 @@ from BingImageCreator import ImageGen
 
 DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 parser = argparse.ArgumentParser()
-parser.add_argument("prompt_file", type=str, help="Your prompt to test, provide the location that it is stored in (prompt.txt)")
+parser.add_argument("--prompt_file", type=str, help="Your prompt to test, provide the location that it is stored in (prompt.txt)", default="new_prompt.txt")
 
 args = parser.parse_args()
 try:
@@ -40,4 +40,4 @@ image_generator = ImageGen(
     None
 )
 
-image_generator.get_images(prompt)
+image_generator.get_images(prompt) # TODO: Output

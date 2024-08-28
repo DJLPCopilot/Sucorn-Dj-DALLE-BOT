@@ -15,8 +15,11 @@ import httpx
 # import pkg_resources
 import regex
 import requests
+from bs4 import BeautifulSoup
 
 BING_URL = os.getenv("BING_URL", "https://www.bing.com")
+PARAMETERS = "&rt=4&FORM=GENCRE" # If rt4 fails then use rt3 or remove it like "&FORM=GENCRE"
+
 # Generate random IP between range 13.104.0.0/14
 FORWARDED_IP = (
     f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}"
@@ -43,6 +46,7 @@ error_noresults = "Could not get results"
 error_unsupported_lang = "\nthis language is currently not supported by bing"
 error_bad_images = "Bad images"
 error_no_images = "No images"
+error_waiting = "Taking longer than usual (might want to refresh cookies?)" # check back in about 1 day, or change the rt URL parameter located on the top of BingImageCreator.py as instructed in the comment
 # Action messages
 sending_message = "Sending request..."
 wait_message = "Waiting for results..."
@@ -54,7 +58,6 @@ def debug(debug_file, text_var):
     with open(f"{debug_file}", "a", encoding="utf-8") as f:
         f.write(str(text_var))
         f.write("\n")
-
 
 class ImageGen:
     """
@@ -101,7 +104,7 @@ class ImageGen:
         url_encoded_prompt = requests.utils.quote(prompt)
         payload = f"q={url_encoded_prompt}&qs=ds"
         # https://www.bing.com/images/create?q=<PROMPT>&rt=3&FORM=GENCRE
-        url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
+        url = f"{BING_URL}/images/create?q={url_encoded_prompt}{PARAMETERS}"
         response = self.session.post(
             url,
             allow_redirects=False,
@@ -121,6 +124,12 @@ class ImageGen:
             raise Exception(
                 error_blocked_prompt,
             )
+        if "your images are on the way" in response.text.lower():
+            if self.debug_file:
+                self.debug(f"ERROR: {error_waiting}")
+            raise Exception(
+                error_waiting,
+            )
         if (
             "we're working hard to offer image creator in more languages"
             in response.text.lower()
@@ -132,10 +141,11 @@ class ImageGen:
             # if rt4 fails, try rt3
             url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=3&FORM=GENCRE"
             response = self.session.post(url, allow_redirects=False, timeout=200)
-        if response.status_code != 302:
-            if self.debug_file:
-                self.debug(f"ERROR: {error_redirect}")
-            raise Exception(error_redirect)
+            if response.status_code != 302:
+                if self.debug_file:
+                    self.debug(f"ERROR: {error_redirect}")
+                    self.debug(BeautifulSoup(response.text, 'html.parser').get_text(separator=", ")) # NOTE: Please note as this exception is still broad
+                raise Exception(error_redirect)
         # Get redirect URL
         redirect_url = response.headers["Location"].replace("&nfy=1", "")
         request_id = redirect_url.split("id=")[-1]
@@ -298,7 +308,7 @@ class ImageGenAsync:
             )
         if response.status_code != 302:
             # if rt4 fails, try rt3
-            url = f"{BING_URL}/images/create?q={url_encoded_prompt}&rt=4&FORM=GENCRE"
+            url = f"{BING_URL}/images/create?q={url_encoded_prompt}{PARAMETERS}"
             response = await self.session.post(
                 url,
                 follow_redirects=False,
@@ -481,6 +491,7 @@ def main():
         # Create image generator
         image_generator = ImageGen(
             args.U,
+            None,
             args.debug_file,
             args.quiet,
             all_cookies=cookie_json,

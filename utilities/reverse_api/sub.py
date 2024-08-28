@@ -16,6 +16,7 @@ if sys.platform == 'win32':
     import ctypes
     import pygetwindow as gw # linux users will not want to import this
 DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+PAUSE = 10 # For redirect failed or taking too long
 
 def read_prompt():
     with open("prompt.txt", encoding="utf-8") as f:
@@ -39,7 +40,12 @@ async def main(account: str, token: str, prompt: str, out_path: str, delay: str,
     sucorn project data preparation phase
     This is the function to be executed per child process to automate the image creation process
     Command line arguments are parsed as a string so this function converts it"""
-    os.chdir(out_path)
+    try:
+        os.chdir(out_path)
+    except Exception:
+        print(f"Bad path: {out_path}")
+        quit()
+
     if sys.platform == 'win32':
         ctypes.windll.kernel32.SetConsoleTitleW(f"{account} sucorn API")
     else:
@@ -57,20 +63,21 @@ async def main(account: str, token: str, prompt: str, out_path: str, delay: str,
         count += 1
         print(f"\n{account} Cycle {count}, Strike {combo}: ", end="")
         # Put here because of reloading
-        cmd = f"python {DIRECTORY}/BingImageCreator.py -U {token} --prompt \"{prompt_pointer[0]}\" --output-dir ." 
+        cmd = f"python '{DIRECTORY}/BingImageCreator.py' -U {token} --prompt \"{prompt_pointer[0]}\" --output-dir ."
         try:
             subprocess.run(cmd, shell=True, check=True, stderr=subprocess.PIPE)
             combo = 0
         except subprocess.CalledProcessError as e:
             exc = e.stderr.decode().split("\n")[-2]
             print(f"Failed: {exc}")
-            if "Exception: Redirect failed" in exc:
+            if "Exception: Redirect failed" in exc or "Taking longer than usual":
                 combo += 1
+                time.sleep(PAUSE)
             else:
                 combo = 0
 
         print(f"{time.time()-s:.4f}s")
-    
+
     # Termination
     os.chdir(DIRECTORY)
 
@@ -99,7 +106,7 @@ async def main(account: str, token: str, prompt: str, out_path: str, delay: str,
             json.dump(usernames, file, indent=4)
     else:
         print("usernames.json not found, unable to move account to unusable category, run get_cookie to restore this file")
-        
+
     input(f"Terminated at {time.asctime()} due to {max_attempts} consecutive redirects. Press any key to quit ")
     if sys.platform.startswith('linux'):
         subprocess.run(['exit'], check=True) # TODO: Confirm this
